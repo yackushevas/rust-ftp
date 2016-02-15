@@ -9,7 +9,7 @@
 //!
 //! ```rust
 //! use ftp::FtpStream;
-//! let mut ftp_stream = match FtpStream::connect("127.0.0.1", 21) {
+//! let mut ftp_stream = match FtpStream::connect("192.168.99.100", 21) {
 //!   Ok(s) => s,
 //!   Err(e) => panic!("{}", e)
 //! };
@@ -398,5 +398,29 @@ impl FtpStream {
         } else {
             return Err(format!("Invalid response: {} {}", code, line));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FtpStream;
+
+    #[test]
+    fn test_connect_and_quit() {
+        let cr = FtpStream::connect("192.168.99.100", 21);
+        assert_eq!(cr.is_ok(), true);
+        let mut ftp_stream = cr.unwrap();
+        let qr = ftp_stream.quit();
+        assert_eq!(qr.is_ok(), true);
+    }
+
+    #[test]
+    fn test_login() {
+        let mut ftp_stream = match FtpStream::connect("192.168.99.100", 21) {
+            Ok(s) => s,
+            Err(e) => panic!("{}", e)
+        };
+        let login_result = ftp_stream.login("anonymous", "");
+        assert_eq!(login_result.is_ok(), true);
     }
 }
